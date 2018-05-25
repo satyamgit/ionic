@@ -1,0 +1,29 @@
+<div class="ion-diagnostic">
+<div class="ion-diagnostic-masthead" title="typescript error: 2345">
+<div class="ion-diagnostic-title">Typescript Error</div>
+<div class="ion-diagnostic-message" data-error-code="typescript-2345">Argument of type &#039;{ headers: Headers; }&#039; is not assignable to parameter of type &#039;{ headers?: HttpHeaders | { [header: string]: string | string[]; }; observe?: &quot;body&quot;; params?: Ht...&#039;.
+  Types of property &#039;headers&#039; are incompatible.
+    Type &#039;Headers&#039; is not assignable to type &#039;HttpHeaders | { [header: string]: string | string[]; }&#039;.
+      Type &#039;Headers&#039; is not assignable to type &#039;{ [header: string]: string | string[]; }&#039;.
+        Index signature is missing in type &#039;Headers&#039;.</div>
+</div>
+<div class="ion-diagnostic-file">
+<div class="ion-diagnostic-file-header" title="/opt/lampp/htdocs/ionic-user/src/providers/auth-service/auth-service.ts">src/providers/auth-service/auth-service.ts</div>
+<div class="ion-diagnostic-blob">
+<table class="ion-diagnostic-table">
+<tr>
+<td class="ion-diagnostic-blob-num" data-line-number="27"></td>
+<td class="ion-diagnostic-blob-code"></td>
+</tr>
+<tr class="ion-diagnostic-error-line">
+<td class="ion-diagnostic-blob-num" data-line-number="28"></td>
+<td class="ion-diagnostic-blob-code">      <span class="hljs-keyword">this</span>.http.post(apiUrl + <span class="hljs-keyword">type</span>, <span class="hljs-built_in">JSON</span>.stringify(credentials), <span class="ion-diagnostics-error-chr">{</span><span class="ion-diagnostics-error-chr">h</span><span class="ion-diagnostics-error-chr">e</span><span class="ion-diagnostics-error-chr">a</span><span class="ion-diagnostics-error-chr">d</span><span class="ion-diagnostics-error-chr">e</span><span class="ion-diagnostics-error-chr">r</span><span class="ion-diagnostics-error-chr">s</span><span class="ion-diagnostics-error-chr">:</span><span class="ion-diagnostics-error-chr"> </span><span class="ion-diagnostics-error-chr">h</span><span class="ion-diagnostics-error-chr">e</span><span class="ion-diagnostics-error-chr">a</span><span class="ion-diagnostics-error-chr">d</span><span class="ion-diagnostics-error-chr">e</span><span class="ion-diagnostics-error-chr">r</span><span class="ion-diagnostics-error-chr">s</span><span class="ion-diagnostics-error-chr">}</span>).subscribe(res =&gt; {</td>
+</tr>
+<tr>
+<td class="ion-diagnostic-blob-num" data-line-number="29"></td>
+<td class="ion-diagnostic-blob-code">			resolve(res);</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
