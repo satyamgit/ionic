@@ -1,0 +1,161 @@
+
+<!-- auth.js -->
+'use strict';
+
+angular.module('campaignapp')
+.factory('Auth', [ '$http', '$rootScope', '$window', 'Session', 'AUTH_EVENTS', 'toaster', '$state', '$modal', 'md5',
+function($http, $rootScope, $window, Session, AUTH_EVENTS, toaster, $state, $modal, md5) {
+	var authService = {};
+	
+	
+	//the login function
+	authService.login = function(user, success, error) {
+        
+        if(!sessionStorage["userInfo"])
+        {
+			
+			$http.post('api/mainController.php',{'method':'GET','url':'authentication/login','username':user.username,'password':user.password}).success(function(data) {
+				//var users = data.users;
+				var users = data.Authorization;
+			
+		if(users){
+			
+				var loginData = users;
+				if(users){
+			
+					$window.sessionStorage["userInfo"] = JSON.stringify(loginData);
+					delete loginData.password;
+					Session.create(loginData);
+					$rootScope.currentUser = loginData;
+					$rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+					success(loginData);
+				} else{
+			
+					$rootScope.$broadcast(AUTH_EVENTS.loginFailed);
+					error();
+				}
+			}
+			else{
+				alert("main out");
+					toaster.pop('error', "Please try again", "Username or password incorrect.");	
+				}
+		});
+		
+		}
+		//~ else{
+				//~ 
+				//~ $http.post('api/log.php',{'username':user.username,'password':user.password}).success(function(data) {
+		//~ 
+		//~ var users = data.users;
+		//~ if(users){
+			//~ var loginData = users;
+			//~ if(user.username == loginData.username && user.password == loginData.password){
+				//~ $window.sessionStorage["userInfo"] = JSON.stringify(loginData);
+				//~ delete loginData.password;
+				//~ Session.create(loginData);
+				//~ $rootScope.currentUser = loginData;
+				//~ $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+				//~ success(loginData);
+			//~ } 
+			//~ }	
+		//~ });	
+	//~ }		
+};
+
+/*
+	//check if the user is authenticated
+	authService.isAuthenticated = function() {
+		return !!Session.user;
+	};
+	
+	//check if the user is authorized to access the next route
+	//this function can be also used on element level
+	//e.g. <p ng-if="isAuthorized(authorizedRoles)">show this only to admins</p>
+	authService.isAuthorized = function(authorizedRoles) {
+		if (!angular.isArray(authorizedRoles)) {
+	      authorizedRoles = [authorizedRoles];
+	    }
+	    return (authService.isAuthenticated() &&
+	      authorizedRoles.indexOf(Session.userRole) !== -1);
+	};
+	*/
+	//log out the user and broadcast the logoutSuccess event
+	authService.logout = function(){
+		Session.destroy();		
+		$state.go('logout');
+	
+		$window.sessionStorage.removeItem("userInfo");
+		$rootScope.$broadcast(AUTH_EVENTS.logoutSuccess);
+	}
+
+	return authService;
+}]);
+perentController
+'use strict';
+
+angular.module('campaignapp').
+controller('ParentController', ['$scope', '$rootScope', '$modal', 'Auth', 'AUTH_EVENTS','USER_ROLES','toaster','$http',
+function($scope, $rootScope, $modal, Auth, AUTH_EVENTS, USER_ROLES,toaster,$http){
+	
+	$(document).tooltip();	
+	
+	var myEl = angular.element( document.querySelector( '.main_container'));
+	myEl.addClass('alpha');
+	
+	$http.post("api/mainController.php",{'method':'GET','url':'user/current'})
+		.success(function(data){
+			$rootScope.logincurrentUser=data;
+	})
+	
+	// this is the parent controller for all controllers.
+	// Manages auth login functions and each controller
+	// inherits from this controller	
+	$rootScope.isclass = 'nav-md';
+	$scope.modalShown = false;
+	var showLoginDialog = function() {
+		if(!$scope.modalShown){
+			$scope.modalShown = true;
+	
+	if(!sessionStorage["userInfo"]){
+			    var modalInstance = $modal.open({
+				templateUrl : 'template/login.php',
+				controller : "LoginCtrl",       
+				windowClass: 'isloginpop',
+				backdrop : 'static',
+			});		
+	}else{
+		
+		var modalInstance = $modal.open({
+				template : '<p><!--test teplate load--></p>',
+				controller : "LoginCtrl"
+			});		
+	}
+			modalInstance.result.then(function() {
+				$scope.modalShown = false;
+			});
+		}
+	};
+	
+	var setCurrentUser = function(){
+		$scope.currentUser = $rootScope.currentUser;
+	}
+	
+	var showNotAuthorized = function(){
+		//alert("Not Authorized");
+	    toaster.pop('warring', 'Access denied', "Not authorized to access this page !..");
+
+	}
+	
+	$scope.currentUser = null;
+	$scope.userRoles = USER_ROLES;
+	$scope.isAuthorized = Auth.isAuthorized;
+
+	//listen to events of unsuccessful logins, to run the login dialog
+	$rootScope.$on(AUTH_EVENTS.notAuthorized, showNotAuthorized);
+	$rootScope.$on(AUTH_EVENTS.notAuthenticated, showLoginDialog);
+	$rootScope.$on(AUTH_EVENTS.sessionTimeout, showLoginDialog);
+	$rootScope.$on(AUTH_EVENTS.logoutSuccess, showLoginDialog);
+	$rootScope.$on(AUTH_EVENTS.loginSuccess, setCurrentUser);
+	
+	
+}]);
